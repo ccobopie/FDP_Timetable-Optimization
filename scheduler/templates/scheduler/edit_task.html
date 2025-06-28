@@ -1,0 +1,29 @@
+{% extends "scheduler/base.html" %}
+{% block title %}Editar Tarea{% endblock %}
+
+{% block content %}
+<h1>✏️ Editar Tarea</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>Nombre:</label>
+    <input type="text" name="name" value="{{ task.name }}" required><br>
+
+    <label>Fecha límite:</label>
+    <input type="date" name="deadline" value="{{ task.deadline|date:'Y-m-d' }}" required><br>
+
+    <label>Horas necesarias:</label>
+    <input type="number" name="hours_needed" value="{{ task.estimated_minutes }}" min="1" required><br>
+
+    <label>Máx. horas seguidas:</label>
+    <input type="number" name="max_continuous_hours" value="{{ task.max_consecutive_minutes }}" min="1" required><br>
+
+    <label>Preferencia de inicio:</label>
+    <select name="start_preference" required>
+        <option value="ASAP" {% if task.start_preference == "ASAP" %}selected{% endif %}>ASAP</option>
+        <option value="ALAP" {% if task.start_preference == "ALAP" %}selected{% endif %}>ALAP</option>
+    </select><br>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

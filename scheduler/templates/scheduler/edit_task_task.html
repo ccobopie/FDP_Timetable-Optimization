@@ -1,0 +1,64 @@
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Editar Task</h2>
+
+
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+
+<form method="post">
+<!-- ... resto del formulario ... -->
+
+<form method="post" onsubmit="return validarHoras()">
+    {% csrf_token %}
+    
+    <label for="name">Nombre:</label>
+    <input type="text" name="name" id="name" value="{{ task.name }}" required><br>
+
+    <label for="deadline">Fecha límite:</label>
+    <input type="date" name="deadline" id="deadline" value="{{ task.deadline|date:'Y-m-d' }}" required><br>
+
+    <label for="hours_needed">Horas necesarias:</label>
+    <input type="number" name="hours_needed" id="hours_needed" min="1" value="{{ task.estimated_minutes }}" required><br>
+
+    <label for="max_daily_hours">Máximo de horas al día:</label>
+    <input type="number" name="max_daily_hours" id="max_daily_hours" min="1" value="{{ task.max_daily_minutes|default_if_none:0|divisibleby:60|yesno:"1,0" }}" required><br>
+    
+
+    <label for="start_preference">Preferencia de inicio:</label>
+    <select name="start_preference" id="start_preference" required>
+        <option value="ASAP" {% if task.start_preference == 'ASAP' %}selected{% endif %}>ASAP</option>
+        <option value="ALAP" {% if task.start_preference == 'ALAP' %}selected{% endif %}>ALAP</option>
+    </select><br>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+    function validarHoras() {
+        const necesarias = parseInt(document.getElementById('hours_needed').value);
+        const seguidas = parseInt(document.getElementById('max_daily_hours').value);
+
+
+        if (isNaN(necesarias) || isNaN(seguidas)) {
+            alert("Debes introducir valores válidos en ambos campos de horas.");
+            return false;
+        }
+
+        if (necesarias < seguidas) {
+            alert("Las horas necesarias deben ser iguales o mayores que el máximo de horas seguidas.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}

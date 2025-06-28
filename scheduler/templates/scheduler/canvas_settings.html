@@ -1,0 +1,28 @@
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Configuración de Canvas</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <label for="canvas_token">Token de acceso:</label>
+    {% if token %}
+    <input type="password" name="canvas_token" value="{{ token }}" required>
+{% else %}
+    <input type="text" name="canvas_token" required>
+{% endif %}
+
+    <label for="canvas_base_url">Base URL de Canvas:</label>
+    <input type="text" name="canvas_base_url" required 
+           value="{{ base_url|default_if_none:'' }}"><br><br>
+
+    <label for="canvas_course_ids">IDs de cursos (separados por comas):</label>
+    <input type="text" name="canvas_course_ids" required 
+           value="{{ course_ids|default_if_none:'' }}"><br><br>
+
+    <button type="submit">Guardar y continuar</button>
+</form>
+{% endblock %}

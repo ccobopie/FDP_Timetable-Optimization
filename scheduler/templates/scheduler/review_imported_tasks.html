@@ -1,0 +1,55 @@
+{% extends "scheduler/base.html" %}
+
+{% block content %}
+<h2>Revisar tareas importadas desde Canvas</h2>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post" action="{% url 'confirm_imported_tasks' %}">
+    {% csrf_token %}
+    <table border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Tarea</th>
+                <th>Fecha límite</th>
+                <th>Minutos estimados</th>
+                <th>Máx. minutos diarios</th>
+                <th>Seleccionar</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.course_name }}</td>
+                <td>{{ task.name }}</td>
+                <td>{{ task.due_date|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <input type="number" name="estimated_minutes_{{ task.id }}" placeholder="Ej: 120">
+                </td>
+                <td>
+                    <input type="number" name="max_daily_minutes_{{ task.id }}" placeholder="Ej: 60">
+                </td>
+                <td>
+                    <input type="checkbox" name="task_ids" value="{{ task.id }}">
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">No hay tareas importadas para revisar.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <button type="submit" style="margin-top: 15px;">Importar tareas seleccionadas</button>
+</form>
+{% endblock %}

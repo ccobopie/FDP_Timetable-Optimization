@@ -1,0 +1,98 @@
+{% extends 'scheduler/base.html' %}
+{% block title %}Horario Semanal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4"><i class="bi bi-calendar-week"></i> Horario Semanal ({{ days_of_week.0 }} - {{ days_of_week.6 }})</h2>
+
+  <div class="d-flex justify-content-between mb-4">
+    <a href="?week={{ previous_week }}{% if force %}&force=true{% endif %}" class="btn btn-outline-secondary">
+      <i class="bi bi-chevron-left"></i> Semana anterior
+    </a>
+    <a href="?week={{ next_week }}{% if force %}&force=true{% endif %}" class="btn btn-outline-secondary">
+      Semana siguiente <i class="bi bi-chevron-right"></i>
+    </a>
+  </div>
+
+  <form method="post" class="mb-5" onsubmit="return validarHoras()">
+    {% csrf_token %}
+    <div class="row mb-3">
+      <div class="col-md-6 text-center">
+        <label for="start_hour" class="form-label">Hora de inicio</label>
+        <input type="number" id="start_hour" name="start_hour" class="form-control text-center" value="{{ weekly_range.start_hour }}" min="0" max="24" required>
+      </div>
+      <div class="col-md-6 text-center">
+        <label for="end_hour" class="form-label">Hora de fin</label>
+        <input type="number" id="end_hour" name="end_hour" class="form-control text-center" value="{{ weekly_range.end_hour }}" min="0" max="24" required>
+      </div>
+    </div>
+
+    <div class="text-center mb-4">
+      <button type="submit" class="btn btn-success me-2">
+        <i class="bi bi-save2"></i> Actualizar horas
+      </button>
+      <a href="?week={{ week_offset }}&force=true" class="btn btn-danger" onclick="return confirmarReorganizacion();">
+        <i class="bi bi-exclamation-circle"></i> Forzar reorganización total
+      </a>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered text-center table-striped align-middle shadow-sm">
+        <thead class="table-dark">
+          <tr>
+            <th><i class="bi bi-clock"></i> Hora</th>
+            {% for day in days_of_week %}
+              <th>
+                {{ day|date:"D, M j" }}<br>
+                <input type="checkbox" name="active_days" value="{{ forloop.counter0 }}" id="day_{{ forloop.counter0 }}"
+                  {% if forloop.counter0 in weekly_range.active_days %}checked{% endif %}>
+                <label for="day_{{ forloop.counter0 }}"><i class="bi bi-check2-circle"></i></label>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in timetable %}
+            <tr>
+              <td><strong>{{ row.time|time:"H:i" }}</strong></td>
+              {% for event in row.events %}
+                <td>{{ event }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<script>
+  function validarHoras() {
+    const start = parseInt(document.getElementById("start_hour").value);
+    const end = parseInt(document.getElementById("end_hour").value);
+
+    if (start < 0 || start > 24 || end < 0 || end > 24) {
+      alert("Las horas deben estar entre 0 y 24.");
+      return false;
+    }
+
+    if (start >= end) {
+      alert("La hora final debe ser mayor que la inicial.");
+      return false;
+    }
+
+    const checkedDays = document.querySelectorAll('input[name="active_days"]:checked');
+    if (checkedDays.length === 0) {
+      alert("Selecciona al menos un día activo.");
+      return false;
+    }
+
+    return true;
+  }
+
+  function confirmarReorganizacion() {
+    return confirm("¿Estás seguro de que quieres forzar la reorganización total? Esto eliminará todas las asignaciones actuales de tareas.");
+  }
+</script>
+{% endblock %}
+

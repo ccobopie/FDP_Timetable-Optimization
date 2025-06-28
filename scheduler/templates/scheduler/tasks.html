@@ -1,0 +1,84 @@
+{% extends "scheduler/base.html" %}
+{% block title %}Mis tareas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="bi bi-folder2-open"></i> Mis tareas</h1>
+
+<div class="mb-3">
+  <input type="text" id="searchInput" class="form-control" placeholder="Buscar tareas por nombre...">
+</div>
+
+<table class="table table-hover table-bordered bg-white rounded shadow-sm" data-sort-dir="asc">
+  <thead class="table-light">
+    <tr>
+      <th onclick="sortTable(0)"><i class="bi bi-pin-angle"></i> Nombre</th>
+      <th onclick="sortTable(1)"><i class="bi bi-ui-checks"></i> Tipo</th>
+      <th onclick="sortTable(2)"><i class="bi bi-calendar-date"></i> Fecha límite</th>
+      <th onclick="sortTable(3)"><i class="bi bi-check-circle"></i> Estado</th>
+      <th><i class="bi bi-gear-fill"></i> Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in tasks %}
+    <tr>
+      <td>{{ task.name }}</td>
+      <td>{{ task.get_task_type_display }}</td>
+      <td>
+        {% if task.task_type == 'MEETING' %}
+          {{ task.meeting_datetime|date:"F j, Y H:i" }}
+        {% elif task.task_type == 'WEEKLY' %}
+          {{ task.weekly_end_date|date:"F j, Y" }}
+        {% else %}
+          {{ task.deadline|date:"F j, Y" }}
+        {% endif %}
+      </td>
+      <td>{{ task.calculated_status }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'edit_task' task.id %}">Editar</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'delete_task' task.id %}">Eliminar</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="mb-2">
+  <a class="btn btn-primary" href="{% url 'create_task' %}"><i class="bi bi-plus-circle"></i> Crear nueva tarea</a>
+</div>
+
+<div class="mb-2">
+  <form method="post" action="{% url 'canvas_settings' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-down"></i> Importar desde Canvas</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById("searchInput");
+    input.addEventListener("keyup", function () {
+      const filter = input.value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const cellText = row.cells[0].innerText.toLowerCase();
+        row.style.display = cellText.includes(filter) ? "" : "none";
+      });
+    });
+  });
+
+  function sortTable(colIndex) {
+    const table = document.querySelector("table");
+    const rows = Array.from(table.rows).slice(1);
+    const ascending = table.getAttribute("data-sort-dir") !== "asc";
+    rows.sort((a, b) => {
+      const aText = a.cells[colIndex].innerText.trim().toLowerCase();
+      const bText = b.cells[colIndex].innerText.trim().toLowerCase();
+      return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+    const tbody = table.querySelector("tbody");
+    rows.forEach(row => tbody.appendChild(row));
+    table.setAttribute("data-sort-dir", ascending ? "asc" : "desc");
+  }
+</script>
+
+{% endblock %}

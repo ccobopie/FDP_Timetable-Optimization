@@ -1,0 +1,21 @@
+<!-- scheduler/templates/scheduler/select_canvas_courses.html -->
+
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Seleccionar cursos Canvas</h2>
+<p>Introduce los IDs de los cursos de los que quieres importar tareas, separados por comas:</p>
+
+<form method="post">
+    {% csrf_token %}
+    <label for="course_ids">Introduce los IDs de cursos (separados por comas):</label>
+    <input type="text" name="course_ids" id="course_ids" required>
+    <button type="submit">Añadir cursos</button>
+</form>
+
+<hr>
+
+<form action="{% url 'review_imported_tasks' %}" method="get">
+    <button type="submit">Revisar tareas importadas</button>
+</form>
+{% endblock %}
+

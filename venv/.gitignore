@@ -1,0 +1,33 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Bytecode de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Archivos de entorno
+.env
+*.env
+
+# Bases de datos locales
+*.sqlite3
+*.db
+
+# Archivos temporales y de logs
+*.log
+
+# Archivos del entorno virtual
+venv/
+ENV/
+env/
+
+# Archivos y carpetas específicas de VSCode
+.vscode/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de medios estáticos
+/media/
+staticfiles/
+

@@ -1,0 +1,40 @@
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Editar Reunión</h2>
+
+<form method="post" onsubmit="return validarHoras()">
+    {% csrf_token %}
+    
+    <label for="name">Nombre:</label>
+    <input type="text" name="name" id="name" value="{{ task.name }}" required><br>
+
+    <label for="meeting_date">Fecha:</label>
+    <input type="date" name="meeting_date" id="meeting_date"
+           value="{{ task.meeting_datetime|date:'Y-m-d' }}" required><br>
+
+    <label for="meeting_start_time">Hora inicio:</label>
+    <input type="time" name="meeting_start_time" id="meeting_start_time"
+           value="{{ task.meeting_datetime|time:'H:i' }}" required><br>
+
+    <label for="meeting_end_time">Hora fin:</label>
+    <input type="time" name="meeting_end_time" id="meeting_end_time"
+           value="{{ task.meeting_end_time|time:'H:i' }}" required><br>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+    function validarHoras() {
+        const start = document.getElementById('meeting_start_time').value;
+        const end = document.getElementById('meeting_end_time').value;
+
+        if (start && end && start >= end) {
+            alert("La hora de inicio debe ser anterior a la hora de fin.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}

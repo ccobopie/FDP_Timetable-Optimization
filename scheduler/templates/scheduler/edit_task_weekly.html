@@ -1,0 +1,64 @@
+{% extends "scheduler/base.html" %}
+{% block title %}Editar Weekly Activity{% endblock %}
+
+{% block content %}
+<h2>Editar Weekly Activity</h2>
+
+<form method="post" onsubmit="return validarFechasYHoras()">
+    {% csrf_token %}
+
+    <label for="name">Nombre:</label>
+    <input type="text" name="name" id="name" value="{{ task.name }}" required><br>
+
+    <label for="weekly_start_date">Fecha de inicio:</label>
+    <input type="date" name="weekly_start_date" id="weekly_start_date"
+           value="{{ task.weekly_start_date|date:'Y-m-d' }}" required><br>
+
+    <label for="weekly_end_date">Fecha de fin:</label>
+    <input type="date" name="weekly_end_date" id="weekly_end_date"
+           value="{{ task.weekly_end_date|date:'Y-m-d' }}" required><br>
+
+    <label for="weekly_start_time">Hora inicio:</label>
+    <input type="time" name="weekly_start_time" id="weekly_start_time"
+           value="{{ task.weekly_start_time|time:'H:i' }}" required><br>
+
+    <label for="weekly_end_time">Hora fin:</label>
+    <input type="time" name="weekly_end_time" id="weekly_end_time"
+           value="{{ task.weekly_end_time|time:'H:i' }}" required><br>
+
+    <label for="weekly_day">Día de la semana:</label>
+    <select name="weekly_day" id="weekly_day" required>
+        <option value="MON" {% if task.weekly_day == "MON" %}selected{% endif %}>Lunes</option>
+        <option value="TUE" {% if task.weekly_day == "TUE" %}selected{% endif %}>Martes</option>
+        <option value="WED" {% if task.weekly_day == "WED" %}selected{% endif %}>Miércoles</option>
+        <option value="THU" {% if task.weekly_day == "THU" %}selected{% endif %}>Jueves</option>
+        <option value="FRI" {% if task.weekly_day == "FRI" %}selected{% endif %}>Viernes</option>
+        <option value="SAT" {% if task.weekly_day == "SAT" %}selected{% endif %}>Sábado</option>
+        <option value="SUN" {% if task.weekly_day == "SUN" %}selected{% endif %}>Domingo</option>
+    </select><br>
+
+    <button type="submit" class="btn btn-success">Guardar</button>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+    function validarFechasYHoras() {
+        const startDate = document.getElementById('weekly_start_date').value;
+        const endDate = document.getElementById('weekly_end_date').value;
+        const startTime = document.getElementById('weekly_start_time').value;
+        const endTime = document.getElementById('weekly_end_time').value;
+    
+        if (startDate && endDate && startDate > endDate) {
+            alert('La fecha de inicio debe ser anterior a la fecha de fin.');
+            return false;
+        }
+    
+        if (startTime && endTime && startTime >= endTime) {
+            alert('La hora de inicio debe ser anterior a la hora de fin.');
+            return false;
+        }
+    
+        return true;
+    }
+    </script>
+{% endblock %}

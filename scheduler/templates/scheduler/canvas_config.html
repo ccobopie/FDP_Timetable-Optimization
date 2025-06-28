@@ -1,0 +1,18 @@
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Configuración de Canvas</h2>
+<p style="color:red;">Todos los campos son obligatorios.</p>
+
+<form method="post">
+    {% csrf_token %}
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <label for="canvas_course_ids">IDs de cursos (separados por comas):</label>
+    <input type="text" name="canvas_course_ids" required 
+           value="{{ course_ids|default_if_none:'' }}"><br><br>
+
+    <button type="submit">Guardar cursos</button>
+</form>
+{% endblock %}

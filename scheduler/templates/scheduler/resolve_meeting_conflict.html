@@ -1,0 +1,21 @@
+{% extends 'scheduler/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center text-danger">Conflicto detectado</h2>
+    <p class="text-center mt-3">
+        La reunión <strong>{{ meeting.name }}</strong> coincide con la actividad semanal
+        <strong>{{ weekly.name }}</strong>.
+    </p>
+
+    <form method="post" class="text-center mt-4">
+        {% csrf_token %}
+        <button name="decision" value="overwrite" class="btn btn-danger mr-2">
+            Sobrescribir la reunión con la actividad semanal
+        </button>
+        <button name="decision" value="edit" class="btn btn-warning">
+            Editar la reunión
+        </button>
+    </form>
+</div>
+{% endblock %}

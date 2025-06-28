@@ -1,0 +1,35 @@
+{% extends 'scheduler/base.html' %}
+{% block content %}
+<h2>Weekly Timetable ({{ days_of_week.0 }} - {{ days_of_week.6 }})</h2>
+
+<form method="post">
+  {% csrf_token %}
+  Start hour: <input type="number" name="start_hour" value="{{ weekly_range.start_hour }}">
+  End hour: <input type="number" name="end_hour" value="{{ weekly_range.end_hour }}">
+  <button type="submit">Update Hours</button>
+</form>
+
+<table>
+  <thead>
+    <tr>
+      <th>Time</th>
+      {% for day in days_of_week %}
+        <th>{{ day }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in timetable %}
+      <tr>
+        <td>{{ row.time }}</td>
+        {% for event in row.events %}
+          <td>{{ event }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="?week={{ previous_week }}">Previous Week</a>
+<a href="?week={{ next_week }}">Next Week</a>
+{% endblock %}

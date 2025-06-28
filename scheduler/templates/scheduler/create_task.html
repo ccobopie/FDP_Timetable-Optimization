@@ -1,0 +1,98 @@
+{% extends "scheduler/base.html" %}
+{% block content %}
+<h2>Crear Tarea</h2>
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <label for="name">Nombre:</label>
+    <input type="text" name="name" id="name" required><br>
+
+    <label for="task_type">Tipo:</label>
+    <select name="task_type" id="task_type" required onchange="showFields()">
+        <option value="">--Selecciona un tipo--</option>
+        <option value="TASK">Task</option>
+        <option value="WEEKLY">Weekly Activity</option>
+        <option value="MEETING">Meeting</option>
+    </select><br>
+
+    <!-- TASK -->
+    <div id="taskFields" style="display:none;">
+        <label for="deadline">Fecha límite:</label>
+        <input type="date" name="deadline" id="deadline"><br>
+
+        <label for="hours_needed">Horas necesarias:</label>
+        <input type="number" name="hours_needed" id="hours_needed" min="1"><br>
+
+        <label for="max_daily_hours">Máximo de horas al día:</label>
+        <input type="number" name="max_daily_hours" id="max_daily_hours" min="1"><br>        
+
+        <label for="start_preference">Preferencia de inicio:</label>
+        <select name="start_preference" id="start_preference">
+            <option value="ASAP">ASAP</option>
+            <option value="ALAP">ALAP</option>
+        </select><br>
+    </div>
+
+    <!-- WEEKLY -->
+    <div id="weeklyFields" style="display:none;">
+        <label for="weekly_start_date">Fecha inicio:</label>
+        <input type="date" name="weekly_start_date" id="weekly_start_date"><br>
+
+        <label for="weekly_end_date">Fecha fin:</label>
+        <input type="date" name="weekly_end_date" id="weekly_end_date"><br>
+
+        <label for="weekly_start_time">Hora inicio:</label>
+        <input type="time" name="weekly_start_time" id="weekly_start_time"><br>
+
+        <label for="weekly_end_time">Hora fin:</label>
+        <input type="time" name="weekly_end_time" id="weekly_end_time"><br>
+
+        <label for="weekly_day">Día de la semana:</label>
+        <select name="weekly_day" id="weekly_day">
+            <option value="MON">Lunes</option>
+            <option value="TUE">Martes</option>
+            <option value="WED">Miércoles</option>
+            <option value="THU">Jueves</option>
+            <option value="FRI">Viernes</option>
+            <option value="SAT">Sábado</option>
+            <option value="SUN">Domingo</option>
+        </select><br>
+    </div>
+
+    <!-- MEETING -->
+    <div id="meetingFields" style="display:none;">
+        <label for="meeting_date">Fecha:</label>
+        <input type="date" name="meeting_date" id="meeting_date"><br>
+
+        <label for="meeting_start_time">Hora inicio:</label>
+        <input type="time" name="meeting_start_time" id="meeting_start_time"><br>
+
+        <label for="meeting_end_time">Hora fin:</label>
+        <input type="time" name="meeting_end_time" id="meeting_end_time"><br>
+    </div>
+
+    <button type="submit" class="btn btn-success">Crear</button>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+
+<script>
+    function showFields() {
+        const type = document.getElementById("task_type").value;
+        document.getElementById("taskFields").style.display = (type === "TASK") ? "block" : "none";
+        document.getElementById("weeklyFields").style.display = (type === "WEEKLY") ? "block" : "none";
+        document.getElementById("meetingFields").style.display = (type === "MEETING") ? "block" : "none";
+    }
+
+    // Ejecutar al cargar para mostrar los campos si ya hay un valor seleccionado
+    window.onload = showFields;
+</script>
+{% endblock %}

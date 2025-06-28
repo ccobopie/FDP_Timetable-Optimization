@@ -1,0 +1,37 @@
+{% extends 'scheduler/base.html' %}
+{% block content %}
+
+<h2>❗ No se pudo programar la tarea "{{ task.name }}"</h2>
+
+<p>Selecciona una opción para resolver el problema:</p>
+
+<form method="post">
+  {% csrf_token %}
+
+  <h4>1️⃣ Ajustar rango horario y días activos</h4>
+  <label>Hora de inicio:</label>
+  <input type="number" name="start_hour" value="{{ weekly_range.start_hour }}" min="0" max="23" required>
+
+  <label>Hora de fin:</label>
+  <input type="number" name="end_hour" value="{{ weekly_range.end_hour }}" min="1" max="24" required>
+
+  <p><strong>Días activos:</strong></p>
+  {% for label, index in days %}
+    <label>
+      <input type="checkbox" name="active_days" value="{{ index }}" {% if index in weekly_range.active_days %}checked{% endif %}>
+      {{ label }}
+    </label><br>
+  {% endfor %}
+
+  <br>
+  <button type="submit" name="action" value="adjust_hours_days">✔️ Aplicar cambios y reintentar planificación</button>
+</form>
+
+<hr>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" name="action" value="edit_task">✏️ Editar la tarea directamente</button>
+</form>
+
+{% endblock %}
