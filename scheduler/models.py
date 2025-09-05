@@ -96,9 +96,9 @@ class WeeklyTimeRange(models.Model):
 
 
 class ImportedTask(models.Model):
-    canvas_id = models.BigIntegerField(unique=True)
+    canvas_id = models.BigIntegerField()
     course_id = models.BigIntegerField()
-    course_name = models.CharField(max_length=255, default="Sin curso")  # <- importante
+    course_name = models.CharField(max_length=255, default="Sin curso")  
     name = models.CharField(max_length=255)
     due_date = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -106,6 +106,8 @@ class ImportedTask(models.Model):
     estimated_minutes = models.IntegerField(null=True, blank=True)
     max_daily_minutes = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        unique_together = ('canvas_id', 'user')
 
     def __str__(self):
         return f"{self.name} ({self.course_name})"

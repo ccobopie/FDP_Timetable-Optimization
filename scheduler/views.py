@@ -189,6 +189,7 @@ def confirm_imported_tasks(request):
         return redirect("weekly_timetable")
 
 
+
 @login_required
 def review_imported_tasks(request):
     profile = CanvasProfile.objects.get(user=request.user)
@@ -207,38 +208,40 @@ def review_imported_tasks(request):
         try:
             course = canvas.get_course(course_id)
             course_name = course.get("name", "Sin curso")
-            assignments = canvas.get_assignments(course_id)
+
+            # 🔄 CAMBIO IMPORTANTE: usar paginación
+            assignments = fetch_all_canvas_assignments(course_id, token)
+
+            print(f"Curso: {course_name} ({course_id}) - Total tareas encontradas: {len(assignments)}")
 
             for assignment in assignments:
+                print(assignment["name"], assignment.get("due_at"))
                 due_raw = assignment.get("due_at")
                 if not due_raw:
+                    print(f"Ignorada (sin fecha): {assignment['name']}")
                     continue
 
                 due_dt = datetime.fromisoformat(due_raw.replace("Z", "+00:00")).astimezone(timezone.utc).replace(tzinfo=None)
                 if due_dt < datetime.now():
-                    continue  # solo tareas futuras
-
-                # Verificar si ya está en Task
-                exists = Task.objects.filter(
-                    user=request.user,
-                    name=assignment["name"],
-                    deadline=due_dt.date()
-                ).exists()
-
-                if exists:
+                    print(f"Ignorada (ya pasada): {assignment['name']}")
                     continue
 
-                # Crear en ImportedTask si no está
+                exists = Task.objects.filter(user=request.user, name=assignment["name"], deadline=due_dt.date()).exists()
+                if exists:
+                    print(f"Ignorada (ya en Task): {assignment['name']}")
+                    continue
+
                 imported, created = ImportedTask.objects.get_or_create(
                     canvas_id=assignment["id"],
+                    user=request.user,
                     defaults={
                         "name": assignment["name"],
                         "due_date": due_dt,
                         "course_name": course_name,
                         "course_id": course_id,
-                        "user": request.user
                     }
                 )
+                print(f"Tarea {'creada' if created else 'reutilizada'}: {imported.name} (reviewed={imported.reviewed})")
 
                 if not imported.reviewed:
                     upcoming_imported.append(imported)
@@ -248,6 +251,25 @@ def review_imported_tasks(request):
 
     return render(request, "scheduler/review_imported_tasks.html", {"tasks": upcoming_imported})
 
+
+import requests
+
+def fetch_all_canvas_assignments(course_id, token):
+    assignments = []
+    url = f"https://ufv-es.instructure.com/api/v1/courses/{course_id}/assignments?per_page=100"
+
+    while url:
+        response = requests.get(url, headers={"Authorization": f"Bearer {token}"})
+        response.raise_for_status()  # Para lanzar error si falla la petición
+        assignments += response.json()
+
+        # Paginación: busca si hay una siguiente página
+        if 'next' in response.links:
+            url = response.links['next']['url']
+        else:
+            url = None
+
+    return assignments
 
 
 @login_required
